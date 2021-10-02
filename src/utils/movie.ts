@@ -1,6 +1,6 @@
 import { Movie } from "./types/movie";
 
-export const getListMovies = (size: number, movies: Movie[]) => {
+export const getListMovies = (size: number, movies: Movie[]): Movie[] => {
   let popularMovies: Movie[] = [];
 
   for(let i=0, l=size; i<l; i++) {
@@ -8,4 +8,9 @@ export const getListMovies = (size: number, movies: Movie[]) => {
   }
 
   return popularMovies;
+}
+
+
+export const getRandomMovie = (movies: Movie[]): Movie => {
+  return movies[Math.floor(Math.random() * movies.length)];
 }

@@ -10,18 +10,21 @@ import {
   Title,
   SliderMovie
 } from './styles';
+import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import Header from '../../components/Header';
 import SliderItem from '../../components/SliderItem';
-import { Feather } from '@expo/vector-icons';
 import api, { key as API_KEY } from '../../services/api';
 import { Movie } from '../../utils/types/movie';
-import { getListMovies } from '../../utils/movie';
+import { getListMovies, getRandomMovie } from '../../utils/movie';
 
 const Home = () => {
   const [nowMovies, setNowMovies] = useState<Movie[]>();
   const [popularMovies, setPopularMovies] = useState<Movie[]>();
   const [topMovies, setTopMovies] = useState<Movie[]>();
+  const [bannerMovie, setBannerMovie] = useState<Movie | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigation = useNavigation();
 
   useEffect(() => {
     let isActive = true;
@@ -51,11 +54,12 @@ const Home = () => {
         }),
       ]);
 
-      if(isActive){ 
+      if (isActive) {
         const nowList = getListMovies(10, nowData.data.results);
         const popularList = getListMovies(5, popularData.data.results);
         const topRatedList = getListMovies(5, topRatedData.data.results);
-  
+
+        setBannerMovie(getRandomMovie(nowData.data.results));
         setNowMovies(nowList);
         setPopularMovies(popularList);
         setTopMovies(topRatedList);
@@ -66,15 +70,20 @@ const Home = () => {
 
     // abortar caso o componente nao esteja ativo (na tela)
     return () => {
-      isActive= false;
+      isActive = false;
       ac.abort();
     }
   }, []);
 
-  if(loading) {
+  const navigateDetailsPage = (movie: Movie | undefined) => {
+    if (!movie) return;
+    navigation.navigate("Detail" as never, { id: movie.id } as never);
+  }
+
+  if (loading) {
     return (
       <Container>
-        <ActivityIndicator size="large" color="#FFF" style={{ marginTop: 120}}/>
+        <ActivityIndicator size="large" color="#FFF" style={{ marginTop: 120 }} />
       </Container>
     )
   }
@@ -94,10 +103,10 @@ const Home = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Title>Em Cartaz</Title>
-        <BannerButton activeOpacity={0.9} onPress={() => { alert("Cartaz") }}>
+        <BannerButton activeOpacity={0.9} onPress={() => navigateDetailsPage(bannerMovie)}>
           <Banner
             resizeMethod="resize"
-            source={{ uri: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=725&q=80" }}
+            source={{ uri: `https://image.tmdb.org/t/p/original/${bannerMovie?.poster_path}` }}
           />
         </BannerButton>
 
@@ -105,7 +114,13 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={nowMovies}
-          renderItem={({ item }: any) => <SliderItem data={item}/>}
+          renderItem={
+            ({ item }: any) =>
+              <SliderItem
+                data={item}
+                navigatePage={() => navigateDetailsPage(item)}
+              />
+          }
           keyExtractor={(item: any) => String(item.id)}
         />
 
@@ -114,7 +129,13 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={popularMovies}
-          renderItem={({ item }: any) => <SliderItem data={item}/>}
+          renderItem={
+            ({ item }: any) =>
+              <SliderItem
+                data={item}
+                navigatePage={() => navigateDetailsPage(item)}
+              />
+          }
           keyExtractor={(item: any) => String(item.id)}
         />
 
@@ -123,7 +144,13 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={topMovies}
-          renderItem={({ item }: any) => <SliderItem data={item} />}
+          renderItem={
+            ({ item }: any) =>
+              <SliderItem
+                data={item}
+                navigatePage={() => navigateDetailsPage(item)}
+              />
+          }
           keyExtractor={(item: any) => String(item.id)}
         />
 

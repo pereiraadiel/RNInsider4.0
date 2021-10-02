@@ -8,5 +8,9 @@ export type Movie = {
   title: string;
   popularity: number;
   vote_average: number;
-  vote_count: number
+  vote_count: number;
+  genres: [{
+    id: number;
+    name: string;
+  }];
 }

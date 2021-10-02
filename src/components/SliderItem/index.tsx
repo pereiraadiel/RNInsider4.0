@@ -11,12 +11,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Movie } from '../../utils/types/movie';
 
 type SliderProps = {
-  data: Movie
+  data: Movie,
+  navigatePage: Function;
 }
 
-const SliderItem = ({data}: SliderProps) => {
+const SliderItem = ({data, navigatePage}: SliderProps) => {
   return (
-    <Container activeOpacity={0.8}>
+    <Container activeOpacity={0.8} onPress={() => navigatePage(data)}>
       <BannerItem
         source={{uri: `https://image.tmdb.org/t/p/original${data.poster_path}`}}
       />
