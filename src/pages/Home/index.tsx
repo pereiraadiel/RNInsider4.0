@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, ActivityIndicator } from 'react-native';
 import {
   Container,
   SearchContainer,
@@ -21,9 +21,11 @@ const Home = () => {
   const [nowMovies, setNowMovies] = useState<Movie[]>();
   const [popularMovies, setPopularMovies] = useState<Movie[]>();
   const [topMovies, setTopMovies] = useState<Movie[]>();
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const isActive = true;
+    let isActive = true;
+    const ac = new AbortController();
     const getMovies = async () => {
       const [nowData, popularData, topRatedData] = await Promise.all([
         api.get("/movie/now_playing", {
@@ -48,16 +50,34 @@ const Home = () => {
           }
         }),
       ]);
-      const nowList = getListMovies(10, nowData.data.results);
-      const popularList = getListMovies(5, popularData.data.results);
-      const topRatedList = getListMovies(5, topRatedData.data.results);
 
-      setNowMovies(nowList);
-      setPopularMovies(popularList);
-      setTopMovies(topRatedList);
+      if(isActive){ 
+        const nowList = getListMovies(10, nowData.data.results);
+        const popularList = getListMovies(5, popularData.data.results);
+        const topRatedList = getListMovies(5, topRatedData.data.results);
+  
+        setNowMovies(nowList);
+        setPopularMovies(popularList);
+        setTopMovies(topRatedList);
+        setLoading(false);
+      }
     }
     getMovies();
+
+    // abortar caso o componente nao esteja ativo (na tela)
+    return () => {
+      isActive= false;
+      ac.abort();
+    }
   }, []);
+
+  if(loading) {
+    return (
+      <Container>
+        <ActivityIndicator size="large" color="#FFF" style={{ marginTop: 120}}/>
+      </Container>
+    )
+  }
 
   return (
     <Container>
