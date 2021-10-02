@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native'
 import Stars from 'react-native-stars';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { ScrollView } from 'react-native';
+import { ScrollView, Modal } from 'react-native';
 import {
   Container,
   Banner,
@@ -19,6 +19,7 @@ import { Movie } from '../../utils/types/movie';
 import api, { key as API_KEY } from '../../services/api';
 import { AxiosResponse } from 'axios';
 import Genres from '../../components/Genres';
+import ModalLink from '../../components/ModalLink';
 
 const Detail = () => {
   const navigation = useNavigation();
@@ -26,6 +27,7 @@ const Detail = () => {
   const routeParams = route.params as { [key: string]: string };
 
   const [movie, setMovie] = useState<Movie | undefined>();
+  const [openLink, setOpenLink] = useState<boolean>(false);
 
   useEffect(() => {
     let isActive = true;
@@ -78,7 +80,7 @@ const Detail = () => {
         resizeMethod="resize"
       />
 
-      <ButtonLink activeOpacity={0.8}>
+      <ButtonLink activeOpacity={0.8} onPress={() => setOpenLink(true)}>
         <Feather 
           name="link"
           size={24}
@@ -134,6 +136,18 @@ const Detail = () => {
             {movie?.overview}
           </Description>
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={openLink}
+      > 
+        <ModalLink 
+          link={movie?.homepage}
+          title={movie?.title}
+          closeModal={ () => setOpenLink(false) }
+        />
+      </Modal>
     </Container>
   );
 }
