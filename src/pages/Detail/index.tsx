@@ -145,6 +145,7 @@ const Detail = () => {
         <ModalLink 
           link={movie?.homepage}
           title={movie?.title}
+          movieId={movie?.id}
           closeModal={ () => setOpenLink(false) }
         />
       </Modal>

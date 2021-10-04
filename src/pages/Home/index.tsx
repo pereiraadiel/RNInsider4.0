@@ -24,6 +24,7 @@ const Home = () => {
   const [topMovies, setTopMovies] = useState<Movie[]>();
   const [bannerMovie, setBannerMovie] = useState<Movie | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
+  const [input, setInput] = useState<string>('');
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -80,6 +81,12 @@ const Home = () => {
     navigation.navigate("Detail" as never, { id: movie.id } as never);
   }
 
+  const handleSearchMovie = () => {
+    if(input === '') return;
+    navigation.navigate("Search" as never, {search: input} as never);
+    setInput('');
+  }
+
   if (loading) {
     return (
       <Container>
@@ -95,8 +102,12 @@ const Home = () => {
         <Input
           placeholder="Ex Vingadores"
           placeholderTextColor="#DDD"
+          value={input}
+          onChangeText={(text) => setInput(text)}
         />
-        <SearchButton>
+        <SearchButton
+          onPress={handleSearchMovie}
+        >
           <Feather name="search" size={30} color="#FFF" />
         </SearchButton>
       </SearchContainer>
