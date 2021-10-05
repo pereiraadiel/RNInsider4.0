@@ -20,6 +20,7 @@ import api, { key as API_KEY } from '../../services/api';
 import { AxiosResponse } from 'axios';
 import Genres from '../../components/Genres';
 import ModalLink from '../../components/ModalLink';
+import { saveMovie, getMovies, hasMovie, deleteMovie } from '../../utils/storage';
 
 const Detail = () => {
   const navigation = useNavigation();
@@ -27,6 +28,7 @@ const Detail = () => {
   const routeParams = route.params as { [key: string]: string };
 
   const [movie, setMovie] = useState<Movie | undefined>();
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [openLink, setOpenLink] = useState<boolean>(false);
 
   useEffect(() => {
@@ -43,6 +45,7 @@ const Detail = () => {
 
       if (isActive) {
         setMovie(response.data);
+        setIsFavorite(await hasMovie("@insider-filmes", response.data))
         // console.log(response.data);
       }
     }
@@ -56,6 +59,17 @@ const Detail = () => {
     }
   }, []);
 
+  const toggleFavoriteMovie = async (favMovie: Movie | undefined) => {
+    if(!favMovie) return;
+    if(isFavorite) {
+      await deleteMovie("@insider-filmes", favMovie);
+      setIsFavorite(false);
+    }else {
+      await saveMovie("@insider-filmes", favMovie); 
+      setIsFavorite(true);
+    }
+  }
+
   return (
     <Container>
       <Header>
@@ -66,12 +80,20 @@ const Detail = () => {
             color="#FFF"
           />
         </HeaderButton>
-        <HeaderButton>
-          <Ionicons
-            name="bookmark"
-            size={28}
-            color="#FFF"
-          />
+        <HeaderButton onPress={() => toggleFavoriteMovie(movie)}>
+          {isFavorite ? (
+            <Ionicons
+              name="bookmark"
+              size={28}
+              color="#FFF"
+            />
+            ) : (
+              <Ionicons
+                name="bookmark-outline"
+                size={28}
+                color="#FFF"
+              />
+          )}
         </HeaderButton>
       </Header>
 
